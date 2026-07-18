@@ -8,10 +8,16 @@ import Timeline from "../TimelineView";
 import Table from "../TableView";
 import ModalNewTask from "@/components/ModalNewTask";
 
+// type Props = {
+//   params: { id: string };
+//   onClose: () => void;
+//   id: string;
+// };
+
 type Props = {
-  params: { id: string };
-  onClose: () => void;
-  id: string;
+  params: {
+    id: string;
+  };
 };
 
 const Project = ({ params }: Props) => {
