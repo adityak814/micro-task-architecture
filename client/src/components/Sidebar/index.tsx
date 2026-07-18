@@ -62,7 +62,7 @@ const Sidebar = () => {
         </div>
         {/* TEAM */}
         <div className="flex items-center gap-5 border-y-[1.5px] border-gray-200 px-8 py-4 dark:border-gray-700">
-          <Image src="/TaskHub-Logo.png" alt="Logo" width={80} height={100} />
+          <Image src="https://pm-s3-images-mta.s3.us-east-1.amazonaws.com/TaskHub-Logo.png" alt="Logo" width={80} height={100} />
           <div>
             <h3 className="text-md font-bold tracking-wide dark:text-gray-200">
               Dev Team
