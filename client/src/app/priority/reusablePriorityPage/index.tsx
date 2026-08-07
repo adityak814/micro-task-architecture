@@ -63,13 +63,13 @@ const columns: GridColDef[] = [
     field: "author",
     headerName: "Author",
     width: 150,
-    renderCell: (params) => params.value.username || "Unknown",
+    renderCell: (params) => params.value?.username || "Unknown",
   },
   {
     field: "assignee",
     headerName: "Assignee",
     width: 150,
-    renderCell: (params) => params.value.username || "Unassigned",
+    renderCell: (params) => params.value?.username || "Unassigned",
   },
 ];
 
@@ -77,7 +77,11 @@ const ReusablePriorityPage = ({ priority }: Props) => {
   const [view, setView] = useState("list");
   const [isModalNewTaskOpen, setIsModalNewTaskOpen] = useState(false);
 
-  const { data: currentUser } = useGetAuthUserQuery({});
+  const {
+    data: currentUser,
+    isLoading: isAuthLoading,
+    isError: isAuthError,
+  } = useGetAuthUserQuery({});
   const userId = currentUser?.userDetails?.userId ?? null;
   const {
     data: tasks,
@@ -102,7 +106,9 @@ const ReusablePriorityPage = ({ priority }: Props) => {
     (task: Task) => task.priority === priority,
   );
 
-  if (isTasksError || !tasks) return <div>Error fetching tasks</div>;
+  if (isAuthLoading || isLoading) return <div>Loading tasks...</div>;
+  if (isAuthError || isTasksError) return <div>Error fetching tasks</div>;
+  if (!userId) return <div>No user found</div>;
 
   return (
     <div className="m-5 p-4">
