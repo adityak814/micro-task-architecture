@@ -7,10 +7,11 @@ import {
   useGetProjectsQuery,
   useGetTasksQuery,
 } from "@/state/api";
-import React from "react";
+import React, { useState } from "react";
 import { useAppSelector } from "../redux";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import Header from "@/components/Header";
+import { Search } from "lucide-react";
 import {
   Bar,
   BarChart,
@@ -36,20 +37,43 @@ const taskColumns: GridColDef[] = [
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
 const HomePage = () => {
+  const [projectIdInput, setProjectIdInput] = useState("1");
+  const [selectedProjectId, setSelectedProjectId] = useState(1);
+  const [projectIdError, setProjectIdError] = useState("");
+
   const {
     data: tasks,
     isLoading: tasksLoading,
     isError: tasksError,
-  } = useGetTasksQuery({ projectId: parseInt("1") });
+  } = useGetTasksQuery({ projectId: selectedProjectId });
   const { data: projects, isLoading: isProjectsLoading } =
     useGetProjectsQuery();
 
   const isDarkMode = useAppSelector((state) => state.global.isDarkMode);
 
-  if (tasksLoading || isProjectsLoading) return <div>Loading..</div>;
-  if (tasksError || !tasks || !projects) return <div>Error fetching data</div>;
+  const selectedProject = projects?.find(
+    (project) => project.id === selectedProjectId,
+  );
+  const dashboardTasks = tasks || [];
 
-  const priorityCount = tasks.reduce(
+  const handleProjectSearch = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const nextProjectId = Number(projectIdInput);
+
+    if (!Number.isInteger(nextProjectId) || nextProjectId <= 0) {
+      setProjectIdError("Enter a valid project ID");
+      return;
+    }
+
+    setProjectIdError("");
+    setSelectedProjectId(nextProjectId);
+  };
+
+  if (isProjectsLoading) return <div>Loading..</div>;
+  if (tasksError || !projects) return <div>Error fetching data</div>;
+
+  const priorityCount = dashboardTasks.reduce(
     (acc: Record<string, number>, task: Task) => {
       const { priority } = task;
       acc[priority as Priority] = (acc[priority as Priority] || 0) + 1;
@@ -93,7 +117,33 @@ const HomePage = () => {
 
   return (
     <div className="container h-full w-[100%] bg-gray-100 bg-transparent p-8">
-      <Header name="Project Management Dashboard" />
+      <Header
+        name={`Project Management Dashboard${selectedProject ? ` - ${selectedProject.name}` : ` - Project #${selectedProjectId}`}`}
+      />
+      <form
+        className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-start"
+        onSubmit={handleProjectSearch}
+      >
+        <div className="relative flex h-min w-full sm:w-[260px]">
+          <Search className="absolute left-[8px] top-1/2 mr-2 h-5 w-5 -translate-y-1/2 transform cursor-pointer text-gray-500 dark:text-white" />
+          <input
+            className="w-full rounded border border-gray-300 bg-white p-2 pl-9 shadow-sm placeholder-gray-500 focus:border-transparent focus:outline-none dark:border-dark-tertiary dark:bg-dark-tertiary dark:text-white dark:placeholder-white"
+            type="search"
+            placeholder="Search project ID"
+            value={projectIdInput}
+            onChange={(event) => setProjectIdInput(event.target.value)}
+          />
+        </div>
+        <button
+          type="submit"
+          className="flex items-center justify-center rounded bg-blue-primary px-3 py-2 text-white hover:bg-blue-600"
+        >
+          Search
+        </button>
+        {projectIdError && (
+          <p className="text-sm text-red-500 sm:py-2">{projectIdError}</p>
+        )}
+      </form>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="rounded-lg bg-white p-4 shadow dark:bg-dark-secondary">
           <h3 className="mb-4 text-lg font-semibold dark:text-white">
@@ -143,7 +193,7 @@ const HomePage = () => {
           </h3>
           <div style={{ height: 400, width: "100%" }}>
             <DataGrid
-              rows={tasks}
+              rows={dashboardTasks}
               columns={taskColumns}
               checkboxSelection
               loading={tasksLoading}
