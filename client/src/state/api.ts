@@ -95,11 +95,26 @@ export const api = createApi({
           const user = await getCurrentUser();
           const session = await fetchAuthSession();
           if (!session) throw new Error("No session found");
-          const { userSub } = session;
-          const { accessToken } = session.tokens ?? {};
+          const userSub = session.userSub ?? user.userId;
+          if (!userSub) throw new Error("No user sub found");
 
           const userDetailsResponse = await fetchWithBQ(`users/${userSub}`);
-          const userDetails = userDetailsResponse.data as User;
+          let userDetails = userDetailsResponse.data as User | undefined;
+
+          if (!userDetails?.userId) {
+            const usersResponse = await fetchWithBQ("users");
+            const users = usersResponse.data as User[] | undefined;
+
+            userDetails = users?.find(
+              (registeredUser) =>
+                registeredUser.cognitoId === userSub ||
+                registeredUser.username === user.username,
+            );
+          }
+
+          if (!userDetails?.userId) {
+            throw new Error("Authenticated user was not found in app users");
+          }
 
           return { data: { user, userSub, userDetails } };
         } catch (error: any) {
