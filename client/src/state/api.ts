@@ -92,7 +92,7 @@ export const api = createApi({
     getAuthUser: build.query({
       queryFn: async (_, _queryApi, _extraoptions, fetchWithBQ) => {
         try {
-          const user = await getCurrentUser;
+          const user = await getCurrentUser();
           const session = await fetchAuthSession();
           if (!session) throw new Error("No session found");
           const { userSub } = session;
