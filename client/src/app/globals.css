@@ -63,3 +63,8 @@ body,
   width: 0px;
   height: 0px;
 }
+
+.amplify-button--primary {
+  background-color: hsl(190, 95%, 30%) !important;
+  color: white !important;
+}
