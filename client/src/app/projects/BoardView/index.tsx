@@ -12,7 +12,13 @@ type BoardProps = {
   setIsModalNewTaskOpen: (isOpen: boolean) => void;
 };
 
-const taskStatus = ["To Do", "Work In Progress", "Under Review", "Completed"];
+const taskStatus = [
+  "To Do",
+  "Work In Progress",
+  "Under Review",
+  "Completed",
+  "Inactive",
+];
 
 const BoardView = ({ id, setIsModalNewTaskOpen }: BoardProps) => {
   const {
@@ -32,7 +38,7 @@ const BoardView = ({ id, setIsModalNewTaskOpen }: BoardProps) => {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="grid grid-cols-1 gap-4 p-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 p-4 md:grid-cols-2 xl:grid-cols-5">
         {taskStatus.map((status) => (
           <TaskColumn
             key={status}
@@ -75,6 +81,7 @@ const TaskColumn = ({
     "Work In Progress": "#059669",
     "Under Review": "#D97706",
     Completed: "#000000",
+    Inactive: "#6B7280",
   };
   return (
     <div

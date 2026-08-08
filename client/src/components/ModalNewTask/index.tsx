@@ -91,6 +91,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null }: Props) => {
             <option value={Status.WorkInProgress}>Work In Progress</option>
             <option value={Status.UnderReview}>Under Review</option>
             <option value={Status.Completed}>Completed</option>
+            <option value={Status.Inactive}>Inactive</option>
           </select>
           <select
             className={selectStyles}
