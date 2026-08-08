@@ -4,7 +4,7 @@ import Header from "@/components/Header";
 import ProjectCard from "@/components/ProjectCard";
 import TaskCard from "@/components/TaskCard";
 import UserCard from "@/components/UserCard";
-import { useSearchQuery } from "@/state/api";
+import { Task, useGetUsersQuery, useSearchQuery } from "@/state/api";
 import { debounce } from "lodash";
 import React, { useEffect, useState } from "react";
 
@@ -17,6 +17,7 @@ const Search = () => {
   } = useSearchQuery(searchTerm, {
     skip: searchTerm.length < 3,
   });
+  const { data: users } = useGetUsersQuery();
 
   const handleSearch = debounce(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,6 +29,16 @@ const Search = () => {
   useEffect(() => {
     return handleSearch.cancel;
   }, [handleSearch.cancel]);
+
+  const tasksWithUsers = searchResults?.tasks?.map((task: Task) => ({
+    ...task,
+    author:
+      task.author ||
+      users?.find((user) => user.userId === task.authorUserId),
+    assignee:
+      task.assignee ||
+      users?.find((user) => user.userId === task.assignedUserId),
+  }));
 
   return (
     <div className="p-8">
@@ -48,7 +59,7 @@ const Search = () => {
             {searchResults.tasks && searchResults.tasks?.length > 0 && (
               <h2>Tasks</h2>
             )}
-            {searchResults.tasks?.map((task) => (
+            {tasksWithUsers?.map((task) => (
               <TaskCard key={task.id} task={task} />
             ))}
 
